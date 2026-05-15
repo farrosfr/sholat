@@ -96,6 +96,7 @@ h1 {
 
 .countdown-panel {
   align-self: end;
+  position: relative;
   padding: 22px;
   border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 8px;
@@ -103,35 +104,13 @@ h1 {
   backdrop-filter: blur(12px);
 }
 
-.panel-topline {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
 .panel-label {
   display: block;
+  margin-bottom: 8px;
   color: rgba(255, 255, 255, 0.72);
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-}
-
-.fullscreen-toggle {
-  min-height: 34px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  border-radius: 8px;
-  padding: 0 11px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.12);
-  font-size: 0.82rem;
-  font-weight: 750;
-}
-
-.fullscreen-toggle:hover {
-  background: rgba(255, 255, 255, 0.2);
 }
 
 #next-prayer {
@@ -147,12 +126,62 @@ h1 {
   font-weight: 700;
 }
 
-.timer {
+.timer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  gap: 12px;
+  align-items: center;
   margin: 24px 0 8px;
+}
+
+.timer {
+  min-width: 0;
+  margin: 0;
   font-variant-numeric: tabular-nums;
   font-size: clamp(2.3rem, 8vw, 4.3rem);
   line-height: 1;
   white-space: nowrap;
+}
+
+.fullscreen-toggle {
+  display: inline-grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 8px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  touch-action: manipulation;
+}
+
+.fullscreen-toggle:hover,
+.fullscreen-toggle:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.fullscreen-toggle:focus-visible {
+  outline: 3px solid rgba(240, 198, 110, 0.45);
+  outline-offset: 3px;
+}
+
+.fullscreen-icon {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.fullscreen-icon--exit,
+body.countdown-fullscreen .fullscreen-icon--enter {
+  display: none;
+}
+
+body.countdown-fullscreen .fullscreen-icon--exit {
+  display: block;
 }
 
 #countdown-note {
@@ -339,10 +368,6 @@ body.countdown-fullscreen .countdown-panel {
   text-align: center;
 }
 
-body.countdown-fullscreen .panel-topline {
-  justify-content: center;
-}
-
 body.countdown-fullscreen #next-prayer {
   font-size: clamp(2.6rem, 10vw, 7rem);
   line-height: 1;
@@ -352,9 +377,23 @@ body.countdown-fullscreen #next-time {
   font-size: clamp(1.2rem, 3vw, 2.2rem);
 }
 
-body.countdown-fullscreen .timer {
+body.countdown-fullscreen .timer-row {
   margin: clamp(28px, 5vw, 48px) 0 18px;
+  grid-template-columns: minmax(0, 1fr) clamp(48px, 7vw, 72px);
+}
+
+body.countdown-fullscreen .timer {
   font-size: clamp(4rem, 18vw, 13rem);
+}
+
+body.countdown-fullscreen .fullscreen-toggle {
+  width: clamp(48px, 7vw, 72px);
+  height: clamp(48px, 7vw, 72px);
+}
+
+body.countdown-fullscreen .fullscreen-icon {
+  width: clamp(23px, 3vw, 34px);
+  height: clamp(23px, 3vw, 34px);
 }
 
 @media (max-width: 820px) {
@@ -383,8 +422,14 @@ body.countdown-fullscreen .timer {
     padding: 20px;
   }
 
-  .panel-topline {
-    align-items: flex-start;
+  .timer-row {
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 10px;
+  }
+
+  .fullscreen-toggle {
+    width: 44px;
+    height: 44px;
   }
 
   .search__row {

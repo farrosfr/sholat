@@ -16,13 +16,20 @@
           <p class="lede" id="location-label">Memuat jadwal Kab. Gresik...</p>
         </div>
         <div class="countdown-panel" aria-live="polite">
-          <div class="panel-topline">
-            <span class="panel-label">Berikutnya</span>
-            <button class="fullscreen-toggle" id="fullscreen-toggle" type="button" aria-pressed="false">Fullscreen</button>
-          </div>
+          <span class="panel-label">Berikutnya</span>
           <strong id="next-prayer">-</strong>
           <span id="next-time">--:--</span>
-          <div class="timer" id="countdown">--:--:--</div>
+          <div class="timer-row">
+            <div class="timer" id="countdown">--:--:--</div>
+            <button class="fullscreen-toggle" id="fullscreen-toggle" type="button" aria-label="Tampilkan countdown layar penuh" aria-pressed="false">
+              <svg class="fullscreen-icon fullscreen-icon--enter" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"></path>
+              </svg>
+              <svg class="fullscreen-icon fullscreen-icon--exit" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 3v6H3M15 3v6h6M21 15h-6v6M3 15h6v6"></path>
+              </svg>
+            </button>
+          </div>
           <p id="countdown-note">Mengambil jadwal terbaru.</p>
         </div>
       </section>

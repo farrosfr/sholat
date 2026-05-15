@@ -167,7 +167,10 @@ function setFullscreenMode(enabled) {
   state.fullscreen = enabled;
   document.body.classList.toggle("countdown-fullscreen", enabled);
   els.fullscreenToggle.setAttribute("aria-pressed", String(enabled));
-  els.fullscreenToggle.textContent = enabled ? "Keluar" : "Fullscreen";
+  els.fullscreenToggle.setAttribute(
+    "aria-label",
+    enabled ? "Keluar dari countdown layar penuh" : "Tampilkan countdown layar penuh",
+  );
 }
 
 async function toggleFullscreen() {
