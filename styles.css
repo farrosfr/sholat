@@ -379,7 +379,9 @@ body.countdown-fullscreen #next-time {
 
 body.countdown-fullscreen .timer-row {
   margin: clamp(28px, 5vw, 48px) 0 18px;
-  grid-template-columns: minmax(0, 1fr) clamp(48px, 7vw, 72px);
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: clamp(18px, 4vw, 30px);
 }
 
 body.countdown-fullscreen .timer {
