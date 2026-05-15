@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f6b5f">
+    <title>Jadwal Sholat Indonesia</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero" aria-labelledby="app-title">
+        <div class="hero__content">
+          <p class="eyebrow">Jadwal Sholat Indonesia</p>
+          <h1 id="app-title">Countdown waktu sholat</h1>
+          <p class="lede" id="location-label">Memuat jadwal Kab. Gresik...</p>
+        </div>
+        <div class="countdown-panel" aria-live="polite">
+          <span class="panel-label">Berikutnya</span>
+          <strong id="next-prayer">-</strong>
+          <span id="next-time">--:--</span>
+          <div class="timer" id="countdown">--:--:--</div>
+          <p id="countdown-note">Mengambil jadwal terbaru.</p>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="Pilihan lokasi">
+        <form class="search" id="search-form">
+          <label for="city-input">Cari kota/kabupaten</label>
+          <div class="search__row">
+            <input id="city-input" name="city" type="search" autocomplete="off" placeholder="Contoh: Gresik, Surabaya, Bandung">
+            <button type="submit">Cari</button>
+          </div>
+        </form>
+        <button class="location-button" id="location-button" type="button">Gunakan lokasi saya</button>
+      </section>
+
+      <section class="status" id="status" role="status"></section>
+
+      <section class="results" aria-label="Hasil pencarian">
+        <div class="result-list" id="result-list"></div>
+      </section>
+
+      <section class="schedule" aria-labelledby="schedule-title">
+        <div class="section-heading">
+          <h2 id="schedule-title">Jadwal hari ini</h2>
+          <p id="schedule-date">-</p>
+        </div>
+        <div class="schedule-grid" id="schedule-grid"></div>
+      </section>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
