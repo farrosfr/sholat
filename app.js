@@ -16,6 +16,7 @@ const state = {
   todaySchedule: null,
   tomorrowSchedule: null,
   timer: null,
+  fullscreen: false,
 };
 
 const els = {
@@ -29,6 +30,7 @@ const els = {
   nextTime: document.querySelector("#next-time"),
   countdown: document.querySelector("#countdown"),
   countdownNote: document.querySelector("#countdown-note"),
+  fullscreenToggle: document.querySelector("#fullscreen-toggle"),
   scheduleDate: document.querySelector("#schedule-date"),
   scheduleGrid: document.querySelector("#schedule-grid"),
 };
@@ -161,6 +163,28 @@ function updateCountdown() {
   renderSchedule(next.dayLabel === "hari ini" ? next.key : "");
 }
 
+function setFullscreenMode(enabled) {
+  state.fullscreen = enabled;
+  document.body.classList.toggle("countdown-fullscreen", enabled);
+  els.fullscreenToggle.setAttribute("aria-pressed", String(enabled));
+  els.fullscreenToggle.textContent = enabled ? "Keluar" : "Fullscreen";
+}
+
+async function toggleFullscreen() {
+  const shouldEnter = !state.fullscreen;
+  setFullscreenMode(shouldEnter);
+
+  try {
+    if (shouldEnter && document.documentElement.requestFullscreen) {
+      await document.documentElement.requestFullscreen();
+    } else if (!shouldEnter && document.fullscreenElement && document.exitFullscreen) {
+      await document.exitFullscreen();
+    }
+  } catch {
+    setFullscreenMode(shouldEnter);
+  }
+}
+
 async function loadLocation(location) {
   try {
     setStatus(`Memuat jadwal ${location.lokasi}...`);
@@ -259,5 +283,12 @@ els.form.addEventListener("submit", (event) => {
 });
 
 els.locationButton.addEventListener("click", useBrowserLocation);
+els.fullscreenToggle.addEventListener("click", toggleFullscreen);
+
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement && state.fullscreen) {
+    setFullscreenMode(false);
+  }
+});
 
 runSearch(DEFAULT_QUERY, true);
