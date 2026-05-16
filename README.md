@@ -1,31 +1,46 @@
-# Jadwal Sholat Indonesia
+# Menuju Waktu Sholat (Prayer Times)
 
-Static GitHub Pages app for Indonesian prayer times with a live countdown to the nearest upcoming time.
+A modern, responsive, and internationalized prayer times web application built with Vanilla JS, CSS, and HTML.
 
-## Features
+## 🚀 Key Features
 
-- Defaults to Kab. Gresik, Jawa Timur.
-- Search Indonesian cities/regencies from myQuran API.
-- Shows Imsak, Subuh, Terbit, Dhuha, Dzuhur, Ashar, Maghrib, and Isya.
-- Counts down to the nearest upcoming time.
-- Falls back to tomorrow's Subuh when today's schedule has passed.
-- Optional browser location button with OpenStreetMap reverse geocoding.
+- **Hybrid API Intelligence**: Automatically switches between `myquran.com` (for high-accuracy Indonesian data) and `aladhan.com` (for global coverage).
+- **Location-Based Localization**:
+  - Automatically switches UI language (Indonesian/English) based on detected location.
+  - Real-time Hijri date calculation.
+  - Live clock with seconds precision.
+- **Amoled Dark Mode**: High-contrast dark theme optimized for OLED screens, with persistence using `localStorage`.
+- **Smart Search**:
+  - Live autocomplete recommendations while typing.
+  - Support for colloquial city aliases (e.g., "jogja" -> "Yogyakarta", "jkt" -> "Jakarta").
+- **Fullscreen Mode**: Dedicated focus mode with rotation support for mobile devices.
 
-## API
+## 🔄 Project Flow
 
-- Prayer schedule: `https://api.myquran.com/v3`
-- Reverse geocoding for browser location: `https://nominatim.openstreetmap.org`
+1.  **Initialization**: On load, the app detects the user's preferred theme and default location (defaults to Gresik, ID).
+2.  **Location Detection**:
+    *   If the user searches or uses "Gunakan lokasi saya", the app performs a reverse-geocoding lookup.
+    *   The app identifies if the coordinates/query are within Indonesia.
+3.  **API Selection**:
+    *   **In Indonesia**: Uses `api.myquran.com` for local city IDs and precise Ministry of Religious Affairs (KEMENAG) data. Language set to **Indonesian**.
+    *   **International**: Uses `api.aladhan.com` for global timings based on city names. Language set to **English**.
+4.  **Display**:
+    *   Calculates the next prayer time and starts a real-time countdown.
+    *   Updates the hero background with dynamic color gradients based on the active theme.
 
-## Local Preview
+## 🔌 APIs Used
 
-Open `index.html` directly, or run a small static server:
+- **Indonesian Data**: [MyQuran API v3](https://api.myquran.com/)
+- **Global Data**: [Aladhan Prayer Times API](https://aladhan.com/prayer-times-api)
+- **Geocoding**: [Nominatim OpenStreetMap](https://nominatim.org/) (for reverse location matching)
+- **Hijri Date**: Native `Intl.DateTimeFormat` with `islamic-umalqura` calendar.
 
-```sh
-python -m http.server 8000
-```
+## 🛠️ Built With
 
-Then visit `http://localhost:8000`.
+- **HTML5**: Semantic structure.
+- **CSS3**: Custom variables, Grid layout, and smooth transitions.
+- **Vanilla JavaScript**: Zero dependencies for maximum performance and speed.
 
-## GitHub Pages
+---
 
-Use GitHub Pages with source set to the `main` branch and `/ (root)`.
+Built with ❤️ for the global Muslim community.
