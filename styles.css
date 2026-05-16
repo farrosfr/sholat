@@ -66,18 +66,14 @@ button {
   min-height: 320px;
   padding: 34px;
   border-radius: 8px;
-  background:
-    linear-gradient(rgba(11, 77, 69, 0.78), rgba(11, 77, 69, 0.82)),
-    url("image.png") center/cover;
+  background: linear-gradient(135deg, #0b4d45, #0f6b5f);
   color: #fff;
   box-shadow: var(--shadow);
   transition: background 0.4s ease;
 }
 
 body.theme-dark .hero {
-  background:
-    linear-gradient(rgba(13, 17, 16, 0.85), rgba(13, 17, 16, 0.92)),
-    url("image.png") center/cover;
+  background: linear-gradient(135deg, #0d1110, #1a1e1d);
 }
 
 .hero__content {
