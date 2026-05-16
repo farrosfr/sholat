@@ -1,3 +1,4 @@
+const API_BASE = "https://api.myquran.com/v3";
 const GLOBAL_API_BASE = "https://api.aladhan.com/v1";
 const DEFAULT_QUERY = "gresik";
 
@@ -91,7 +92,7 @@ const state = {
   timer: null,
   fullscreen: false,
   theme: localStorage.getItem("theme") || "light",
-  lang: navigator.language.startsWith("id") ? "id" : "en",
+  lang: "id", // Default to id, will be updated by location
 };
 
 const els = {
@@ -373,9 +374,12 @@ async function toggleFullscreen() {
 
 async function loadLocation(location) {
   try {
+    state.isInternational = !!location.international;
+    state.lang = state.isInternational ? "en" : "id";
+    updateStaticStrings();
+    
     setStatus(t("loading", { loc: location.lokasi }));
     state.location = location;
-    state.isInternational = !!location.international;
     const [today, tomorrow] = await Promise.all([
       fetchSchedule(location, todayISO()),
       fetchSchedule(location, todayISO(1)),
