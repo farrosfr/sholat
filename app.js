@@ -205,7 +205,18 @@ function updateClock() {
     month: "long",
     year: "numeric",
   });
-  els.hijriDate.textContent = `${hijriFormatter.format(now)} H`;
+
+  // Manually format to strip potential "SM" or unwanted era labels on some mobile browsers
+  try {
+    const parts = hijriFormatter.formatToParts(now);
+    const day = parts.find(p => p.type === "day").value;
+    const month = parts.find(p => p.type === "month").value;
+    const year = parts.find(p => p.type === "year").value;
+    els.hijriDate.textContent = `${day} ${month} ${year} H`;
+  } catch (e) {
+    // Fallback if parts not supported
+    els.hijriDate.textContent = `${hijriFormatter.format(now).replace(/SM|BC|AD|M/g, "").trim()} H`;
+  }
 }
 
 setInterval(updateClock, 1000);
