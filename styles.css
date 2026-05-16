@@ -270,7 +270,7 @@ input {
   border-radius: 8px;
   padding: 0 14px;
   color: var(--ink);
-  background: #fbfbf8;
+  background: var(--surface);
 }
 
 input:focus {
@@ -354,12 +354,14 @@ h2 {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  background: #fbfbf8;
+  background: var(--surface);
+  transition: all 0.2s ease;
 }
 
 .time-card.active {
-  border-color: rgba(15, 107, 95, 0.5);
-  background: rgba(15, 107, 95, 0.08);
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(15, 107, 95, 0.25);
 }
 
 .time-card span {
@@ -369,12 +371,24 @@ h2 {
   font-weight: 750;
 }
 
+.time-card.active span {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .time-card strong {
   display: block;
   margin-top: 14px;
   color: var(--primary-dark);
   font-size: 1.5rem;
   font-variant-numeric: tabular-nums;
+}
+
+body.theme-dark .time-card strong {
+  color: var(--ink);
+}
+
+.time-card.active strong {
+  color: #fff;
 }
 
 body.countdown-fullscreen {
