@@ -17,6 +17,7 @@ const state = {
   tomorrowSchedule: null,
   timer: null,
   fullscreen: false,
+  theme: localStorage.getItem("theme") || "light",
 };
 
 const els = {
@@ -32,6 +33,7 @@ const els = {
   countdownNote: document.querySelector("#countdown-note"),
   rotateToggle: document.querySelector("#rotate-toggle"),
   fullscreenToggle: document.querySelector("#fullscreen-toggle"),
+  themeToggle: document.querySelector("#theme-toggle"),
   scheduleDate: document.querySelector("#schedule-date"),
   scheduleGrid: document.querySelector("#schedule-grid"),
 };
@@ -40,6 +42,18 @@ function setStatus(message, isError = false) {
   els.status.textContent = message;
   els.status.classList.toggle("error", isError);
 }
+
+function setTheme(theme) {
+  state.theme = theme;
+  document.body.classList.toggle("theme-dark", theme === "dark");
+  localStorage.setItem("theme", theme);
+}
+
+function toggleTheme() {
+  setTheme(state.theme === "light" ? "dark" : "light");
+}
+
+setTheme(state.theme);
 
 function todayISO(offsetDays = 0) {
   const date = new Date();
@@ -310,6 +324,7 @@ els.form.addEventListener("submit", (event) => {
 
 els.locationButton.addEventListener("click", useBrowserLocation);
 els.fullscreenToggle.addEventListener("click", toggleFullscreen);
+els.themeToggle.addEventListener("click", toggleTheme);
 
 document.addEventListener("fullscreenchange", () => {
   if (!document.fullscreenElement && state.fullscreen) {
