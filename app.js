@@ -1,9 +1,3 @@
-const savedTheme = localStorage.getItem("theme");
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
-  document.documentElement.setAttribute("data-theme", "dark");
-}
-
 const API_BASE = "https://api.myquran.com/v3";
 const DEFAULT_QUERY = "gresik";
 const PRAYERS = [
@@ -37,7 +31,6 @@ const els = {
   countdown: document.querySelector("#countdown"),
   countdownNote: document.querySelector("#countdown-note"),
   rotateToggle: document.querySelector("#rotate-toggle"),
-  themeToggle: document.querySelector("#theme-toggle"),
   fullscreenToggle: document.querySelector("#fullscreen-toggle"),
   scheduleDate: document.querySelector("#schedule-date"),
   scheduleGrid: document.querySelector("#schedule-grid"),
@@ -287,13 +280,6 @@ async function useBrowserLocation() {
     { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 },
   );
 }
-
-els.themeToggle.addEventListener("click", () => {
-  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-  const newTheme = isDark ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", newTheme);
-  localStorage.setItem("theme", newTheme);
-});
 
 const canLockOrientation = "orientation" in screen && "lock" in screen.orientation;
 if (!canLockOrientation) {
