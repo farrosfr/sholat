@@ -1,15 +1,86 @@
-const API_BASE = "https://api.myquran.com/v3";
 const GLOBAL_API_BASE = "https://api.aladhan.com/v1";
 const DEFAULT_QUERY = "gresik";
-const PRAYERS = [
-  ["imsak", "Imsak"],
-  ["subuh", "Subuh"],
-  ["terbit", "Terbit"],
-  ["dhuha", "Dhuha"],
-  ["dzuhur", "Dzuhur"],
-  ["ashar", "Ashar"],
-  ["maghrib", "Maghrib"],
-  ["isya", "Isya"],
+
+const translations = {
+  id: {
+    eyebrow: "Jadwal Sholat Indonesia",
+    title: "Menuju Waktu Sholat",
+    loading: "Memuat jadwal {loc}...",
+    searching: "Mencari \"{query}\"...",
+    next: "Berikutnya",
+    today: "hari ini",
+    tomorrow: "besok",
+    towards: "Menuju",
+    searchLabel: "Cari kota/kabupaten",
+    searchPlaceholder: "Contoh: Gresik, Surabaya, Bandung",
+    searchBtn: "Cari",
+    locationBtn: "Gunakan lokasi saya",
+    scheduleTitle: "Jadwal hari ini",
+    locNotFound: "Lokasi tidak ditemukan.",
+    locError: "Lokasi gagal dipakai: {msg}",
+    locMatching: "Mencocokkan koordinat...",
+    locPermission: "Meminta izin lokasi...",
+    locNoSupport: "Browser ini belum mendukung akses lokasi.",
+    locMatchError: "Lokasi berhasil dibaca, tapi belum cocok dengan data. Coba cari manual.",
+    themeLabel: "Ganti tema",
+    rotateLabel: "Putar layar",
+    fullscreenEnter: "Tampilkan countdown layar penuh",
+    fullscreenExit: "Keluar dari countdown layar penuh",
+    fetchNote: "Mengambil jadwal terbaru.",
+    imsak: "Imsak",
+    subuh: "Subuh",
+    terbit: "Terbit",
+    dhuha: "Dhuha",
+    dzuhur: "Dzuhur",
+    ashar: "Ashar",
+    maghrib: "Maghrib",
+    isya: "Isya",
+  },
+  en: {
+    eyebrow: "Prayer Times",
+    title: "Time for Prayer",
+    loading: "Loading schedule for {loc}...",
+    searching: "Searching for \"{query}\"...",
+    next: "Next",
+    today: "today",
+    tomorrow: "tomorrow",
+    towards: "Towards",
+    searchLabel: "Search city/region",
+    searchPlaceholder: "Example: Tokyo, London, Jakarta",
+    searchBtn: "Search",
+    locationBtn: "Use my location",
+    scheduleTitle: "Today's Schedule",
+    locNotFound: "Location not found.",
+    locError: "Location failed: {msg}",
+    locMatching: "Matching coordinates...",
+    locPermission: "Requesting location permission...",
+    locNoSupport: "This browser does not support location access.",
+    locMatchError: "Location found, but no matching data. Please search manually.",
+    themeLabel: "Change theme",
+    rotateLabel: "Rotate screen",
+    fullscreenEnter: "Show fullscreen countdown",
+    fullscreenExit: "Exit fullscreen countdown",
+    fetchNote: "Fetching latest schedule.",
+    imsak: "Imsak",
+    subuh: "Fajr",
+    terbit: "Sunrise",
+    dhuha: "Dhuha",
+    dzuhur: "Dhuhr",
+    ashar: "Asr",
+    maghrib: "Maghrib",
+    isya: "Isha",
+  }
+};
+
+const PRAYERS_KEYS = [
+  ["imsak", "imsak"],
+  ["subuh", "subuh"],
+  ["terbit", "terbit"],
+  ["dhuha", "dhuha"],
+  ["dzuhur", "dzuhur"],
+  ["ashar", "ashar"],
+  ["maghrib", "maghrib"],
+  ["isya", "isya"],
 ];
 
 const state = {
@@ -20,15 +91,21 @@ const state = {
   timer: null,
   fullscreen: false,
   theme: localStorage.getItem("theme") || "light",
+  lang: navigator.language.startsWith("id") ? "id" : "en",
 };
 
 const els = {
+  appTitle: document.querySelector("#app-title"),
+  eyebrow: document.querySelector(".eyebrow"),
   form: document.querySelector("#search-form"),
+  formLabel: document.querySelector("#search-form label"),
   input: document.querySelector("#city-input"),
+  searchBtn: document.querySelector("#search-form button"),
   locationButton: document.querySelector("#location-button"),
   status: document.querySelector("#status"),
   resultList: document.querySelector("#result-list"),
   locationLabel: document.querySelector("#location-label"),
+  panelLabel: document.querySelector(".panel-label"),
   nextPrayer: document.querySelector("#next-prayer"),
   nextTime: document.querySelector("#next-time"),
   countdown: document.querySelector("#countdown"),
@@ -36,12 +113,38 @@ const els = {
   rotateToggle: document.querySelector("#rotate-toggle"),
   fullscreenToggle: document.querySelector("#fullscreen-toggle"),
   themeToggle: document.querySelector("#theme-toggle"),
+  scheduleTitle: document.querySelector("#schedule-title"),
   scheduleDate: document.querySelector("#schedule-date"),
   scheduleGrid: document.querySelector("#schedule-grid"),
   currentTime: document.querySelector("#current-time-display"),
   currentDate: document.querySelector("#current-date-display"),
   hijriDate: document.querySelector("#hijri-date-display"),
 };
+
+function t(key, vars = {}) {
+  let text = translations[state.lang][key] || key;
+  for (const [k, v] of Object.entries(vars)) {
+    text = text.replace(`{${k}}`, v);
+  }
+  return text;
+}
+
+function updateStaticStrings() {
+  els.eyebrow.textContent = t("eyebrow");
+  els.appTitle.textContent = t("title");
+  els.formLabel.textContent = t("searchLabel");
+  els.input.placeholder = t("searchPlaceholder");
+  els.searchBtn.textContent = t("searchBtn");
+  els.locationBtn?.textContent ? els.locationBtn.textContent = t("locationBtn") : null;
+  if (els.locationButton) els.locationButton.textContent = t("locationBtn");
+  els.panelLabel.textContent = t("next");
+  els.scheduleTitle.textContent = t("scheduleTitle");
+  els.themeToggle.title = t("themeLabel");
+  els.themeToggle.setAttribute("aria-label", t("themeLabel"));
+  els.rotateToggle.title = t("rotateLabel");
+  els.rotateToggle.setAttribute("aria-label", t("rotateLabel"));
+  els.countdownNote.textContent = t("fetchNote");
+}
 
 function setStatus(message, isError = false) {
   els.status.textContent = message;
@@ -50,25 +153,23 @@ function setStatus(message, isError = false) {
 
 function updateClock() {
   const now = new Date();
+  const locale = state.lang === "id" ? "id-ID" : "en-US";
   
-  // Time: HH:mm:ss
-  els.currentTime.textContent = now.toLocaleTimeString("id-ID", {
+  els.currentTime.textContent = now.toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
   });
 
-  // Gregorian Date: Sunday, 17 May 2026
-  els.currentDate.textContent = now.toLocaleDateString("id-ID", {
+  els.currentDate.textContent = now.toLocaleDateString(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
   });
 
-  // Hijri Date using Intl.DateTimeFormat with islamic-umalqura
-  const hijriFormatter = new Intl.DateTimeFormat("id-ID-u-ca-islamic-umalqura", {
+  const hijriFormatter = new Intl.DateTimeFormat(`${locale}-u-ca-islamic-umalqura`, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -122,7 +223,7 @@ function getScheduleEntry(payload, dateISO) {
       imsak: timings.Imsak,
       subuh: timings.Fajr,
       terbit: timings.Sunrise,
-      dhuha: timings.Dhuhr, // Dhuha is not directly in Aladhan, using Dhuhr approx or skip
+      dhuha: timings.Dhuhr,
       dzuhur: timings.Dhuhr,
       ashar: timings.Asr,
       maghrib: timings.Maghrib,
@@ -150,7 +251,6 @@ async function fetchJSON(url) {
 
 async function searchLocations(query) {
   if (state.isInternational) {
-    // Aladhan doesn't have a direct search list, we return the query as a "virtual" location
     return [{ id: query, lokasi: query, international: true }];
   }
   const payload = await fetchJSON(`${API_BASE}/sholat/kabkota/cari/${encodeURIComponent(query)}`);
@@ -159,7 +259,6 @@ async function searchLocations(query) {
 
 async function fetchSchedule(location, dateISO) {
   if (location.international) {
-    // Convert dateISO (YYYY-MM-DD) to DD-MM-YYYY for Aladhan
     const [y, m, d] = dateISO.split("-");
     const aladhanDate = `${d}-${m}-${y}`;
     const payload = await fetchJSON(`${GLOBAL_API_BASE}/timingsByCity/${aladhanDate}?city=${encodeURIComponent(location.id)}&country=`);
@@ -198,24 +297,24 @@ function renderSchedule(activeKey = "") {
   els.scheduleDate.textContent = state.todaySchedule.times.tanggal || state.todaySchedule.dateISO;
   els.scheduleGrid.innerHTML = "";
 
-  PRAYERS.forEach(([key, label]) => {
+  PRAYERS_KEYS.forEach(([key, labelKey]) => {
     const card = document.createElement("article");
     card.className = `time-card${key === activeKey ? " active" : ""}`;
-    card.innerHTML = `<span>${label}</span><strong>${state.todaySchedule.times[key] || "--:--"}</strong>`;
+    card.innerHTML = `<span>${t(labelKey)}</span><strong>${state.todaySchedule.times[key] || "--:--"}</strong>`;
     els.scheduleGrid.append(card);
   });
 }
 
 function nextPrayerCandidate() {
   const now = new Date();
-  const todayItems = PRAYERS
+  const todayItems = PRAYERS_KEYS
     .filter(([key]) => state.todaySchedule?.times?.[key])
-    .map(([key, label]) => ({
+    .map(([key, labelKey]) => ({
       key,
-      label,
+      label: t(labelKey),
       time: state.todaySchedule.times[key],
       date: parseTime(state.todaySchedule.dateISO, state.todaySchedule.times[key]),
-      dayLabel: "hari ini",
+      dayLabel: t("today"),
     }));
 
   const upcomingToday = todayItems.find((item) => item.date > now);
@@ -225,10 +324,10 @@ function nextPrayerCandidate() {
   if (tomorrowSubuh) {
     return {
       key: "subuh",
-      label: "Subuh",
+      label: t("subuh"),
       time: tomorrowSubuh,
       date: parseTime(state.tomorrowSchedule.dateISO, tomorrowSubuh),
-      dayLabel: "besok",
+      dayLabel: t("tomorrow"),
     };
   }
 
@@ -242,8 +341,8 @@ function updateCountdown() {
   els.nextPrayer.textContent = next.label;
   els.nextTime.textContent = `${next.time} ${next.dayLabel}`;
   els.countdown.textContent = formatDuration(next.date - new Date());
-  els.countdownNote.textContent = `Menuju ${next.label.toLowerCase()} ${next.dayLabel}.`;
-  renderSchedule(next.dayLabel === "hari ini" ? next.key : "");
+  els.countdownNote.textContent = `${t("towards")} ${next.label.toLowerCase()} ${next.dayLabel}.`;
+  renderSchedule(next.dayLabel === t("today") ? next.key : "");
 }
 
 function setFullscreenMode(enabled) {
@@ -252,7 +351,7 @@ function setFullscreenMode(enabled) {
   els.fullscreenToggle.setAttribute("aria-pressed", String(enabled));
   els.fullscreenToggle.setAttribute(
     "aria-label",
-    enabled ? "Keluar dari countdown layar penuh" : "Tampilkan countdown layar penuh",
+    enabled ? t("fullscreenExit") : t("fullscreenEnter"),
   );
 }
 
@@ -274,7 +373,7 @@ async function toggleFullscreen() {
 
 async function loadLocation(location) {
   try {
-    setStatus(`Memuat jadwal ${location.lokasi}...`);
+    setStatus(t("loading", { loc: location.lokasi }));
     state.location = location;
     state.isInternational = !!location.international;
     const [today, tomorrow] = await Promise.all([
@@ -294,11 +393,11 @@ async function loadLocation(location) {
 
 async function runSearch(query, autoloadFirst = false) {
   try {
-    setStatus(`Mencari "${query}"...`);
+    setStatus(t("searching", { query }));
     const locations = await searchLocations(query);
     renderResults(locations);
     if (!locations.length) {
-      setStatus("Lokasi tidak ditemukan.", true);
+      setStatus(t("locNotFound"), true);
       return;
     }
     setStatus(`${locations.length} lokasi ditemukan.`);
@@ -324,15 +423,15 @@ function locationKeywords(address) {
 
 async function useBrowserLocation() {
   if (!navigator.geolocation) {
-    setStatus("Browser ini belum mendukung akses lokasi.", true);
+    setStatus(t("locNoSupport"), true);
     return;
   }
 
-  setStatus("Meminta izin lokasi...");
+  setStatus(t("locPermission"));
   navigator.geolocation.getCurrentPosition(
     async (position) => {
       try {
-        setStatus("Mencocokkan koordinat...");
+        setStatus(t("locMatching"));
         const { latitude, longitude } = position.coords;
         const reverseUrl = new URL("https://nominatim.openstreetmap.org/reverse");
         reverseUrl.search = new URLSearchParams({
@@ -341,7 +440,7 @@ async function useBrowserLocation() {
           lon: longitude,
           zoom: "10",
           addressdetails: "1",
-          "accept-language": "id",
+          "accept-language": state.lang,
         });
         const reverse = await fetchJSON(reverseUrl.toString());
         const isIndo = reverse.address?.country_code === "id";
@@ -357,19 +456,18 @@ async function useBrowserLocation() {
             }
           }
         } else {
-          // International fallback to Aladhan
           const city = reverse.address.city || reverse.address.town || reverse.address.state;
           const country = reverse.address.country;
           const locName = `${city}, ${country}`;
           await loadLocation({ id: locName, lokasi: locName, international: true });
           return;
         }
-        setStatus("Lokasi berhasil dibaca, tapi belum cocok dengan data. Coba cari manual.", true);
+        setStatus(t("locMatchError"), true);
       } catch (error) {
-        setStatus(`Lokasi gagal dipakai: ${error.message}`, true);
+        setStatus(t("locError", { msg: error.message }), true);
       }
     },
-    () => setStatus("Izin lokasi ditolak atau tidak tersedia. Coba cari kota manual.", true),
+    () => setStatus(t("locNoSupport"), true),
     { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 },
   );
 }
@@ -389,7 +487,7 @@ async function toggleRotation() {
     }
   } catch (e) {
     console.warn("Orientation lock failed:", e);
-    setStatus("Rotasi layar tidak didukung di perangkat ini.", true);
+    setStatus(t("rotateLabel") + " error", true);
   }
 }
 
@@ -399,9 +497,6 @@ els.form.addEventListener("submit", (event) => {
   event.preventDefault();
   const query = els.input.value.trim();
   if (query) {
-    // Check if query looks international (contains comma or non-ID search)
-    // For simplicity, we can just allow the user to toggle or detect
-    // Let's assume search button for global if no ID results found or just allow it
     runSearch(query, true);
   }
 });
@@ -416,16 +511,8 @@ document.addEventListener("fullscreenchange", () => {
   }
 });
 
-// Initial detection
 async function init() {
-  try {
-    // Check if we are abroad via browser locale or just default to Indo then switch
-    if (!navigator.language.startsWith("id")) {
-      // Default query for global if not Indo
-      // But let's stick to DEFAULT_QUERY and try to auto-detect via IP if possible
-      // For now, just run normal search
-    }
-  } catch {}
+  updateStaticStrings();
   runSearch(DEFAULT_QUERY, true);
 }
 
