@@ -128,6 +128,8 @@ const els = {
   currentTime: document.querySelector("#current-time-display"),
   currentDate: document.querySelector("#current-date-display"),
   hijriDate: document.querySelector("#hijri-date-display"),
+  regionId: document.querySelector("#region-id"),
+  regionIntl: document.querySelector("#region-intl"),
 };
 
 function t(key, vars = {}) {
@@ -136,6 +138,18 @@ function t(key, vars = {}) {
     text = text.replace(`{${k}}`, v);
   }
   return text;
+}
+
+function setRegion(region) {
+  state.isInternational = (region === "intl");
+  state.lang = state.isInternational ? "en" : "id";
+  
+  els.regionId.classList.toggle("active", region === "id");
+  els.regionIntl.classList.toggle("active", region === "intl");
+  
+  updateStaticStrings();
+  els.input.value = "";
+  els.resultList.innerHTML = "";
 }
 
 function updateStaticStrings() {
@@ -540,6 +554,9 @@ els.form.addEventListener("submit", (event) => {
 els.locationButton.addEventListener("click", useBrowserLocation);
 els.fullscreenToggle.addEventListener("click", toggleFullscreen);
 els.themeToggle.addEventListener("click", toggleTheme);
+
+els.regionId.addEventListener("click", () => setRegion("id"));
+els.regionIntl.addEventListener("click", () => setRegion("intl"));
 
 document.addEventListener("fullscreenchange", () => {
   if (!document.fullscreenElement && state.fullscreen) {
