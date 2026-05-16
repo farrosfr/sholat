@@ -36,12 +36,46 @@ const els = {
   themeToggle: document.querySelector("#theme-toggle"),
   scheduleDate: document.querySelector("#schedule-date"),
   scheduleGrid: document.querySelector("#schedule-grid"),
+  currentTime: document.querySelector("#current-time-display"),
+  currentDate: document.querySelector("#current-date-display"),
+  hijriDate: document.querySelector("#hijri-date-display"),
 };
 
 function setStatus(message, isError = false) {
   els.status.textContent = message;
   els.status.classList.toggle("error", isError);
 }
+
+function updateClock() {
+  const now = new Date();
+  
+  // Time: HH:mm:ss
+  els.currentTime.textContent = now.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  // Gregorian Date: Sunday, 17 May 2026
+  els.currentDate.textContent = now.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  // Hijri Date using Intl.DateTimeFormat with islamic-umalqura
+  const hijriFormatter = new Intl.DateTimeFormat("id-ID-u-ca-islamic-umalqura", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  els.hijriDate.textContent = `${hijriFormatter.format(now)} H`;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
 
 function setTheme(theme) {
   state.theme = theme;
