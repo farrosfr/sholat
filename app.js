@@ -101,6 +101,7 @@ const state = {
   fullscreen: false,
   theme: localStorage.getItem("theme") || "light",
   lang: "id", // Default to id, will be updated by location
+  timezone: null, // Stores timezone like 'Asia/Jakarta'
 };
 
 const els = {
@@ -178,14 +179,20 @@ function updateClock() {
   const now = new Date();
   const locale = state.lang === "id" ? "id-ID" : "en-US";
   
+  // Use location timezone if available, otherwise browser local
+  const tzOptions = state.timezone ? { timeZone: state.timezone } : {};
+
   els.currentTime.textContent = now.toLocaleTimeString(locale, {
+    ...tzOptions,
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
+    timeZoneName: "short",
   });
 
   els.currentDate.textContent = now.toLocaleDateString(locale, {
+    ...tzOptions,
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -193,6 +200,7 @@ function updateClock() {
   });
 
   const hijriFormatter = new Intl.DateTimeFormat(`${locale}-u-ca-islamic-umalqura`, {
+    ...tzOptions,
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -216,7 +224,11 @@ function toggleTheme() {
 setTheme(state.theme);
 
 function todayISO(offsetDays = 0) {
-  const date = new Date();
+  let date = new Date();
+  if (state.timezone) {
+    const tzStr = date.toLocaleString("en-US", { timeZone: state.timezone });
+    date = new Date(tzStr);
+  }
   date.setDate(date.getDate() + offsetDays);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -226,9 +238,26 @@ function todayISO(offsetDays = 0) {
 
 function parseTime(dateISO, time) {
   const [hours, minutes] = time.split(":").map(Number);
-  const date = new Date(`${dateISO}T00:00:00`);
-  date.setHours(hours, minutes, 0, 0);
-  return date;
+  const targetDateStr = `${dateISO}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
+  
+  if (!state.timezone) {
+    return new Date(targetDateStr);
+  }
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: state.timezone,
+    year: "numeric", month: "numeric", day: "numeric",
+    hour: "numeric", minute: "numeric", second: "numeric",
+    hour12: false
+  });
+  
+  let date = new Date(targetDateStr + "Z");
+  const parts = formatter.formatToParts(date);
+  const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  const formattedTarget = new Date(`${map.year}-${map.month.padStart(2,"0")}-${map.day.padStart(2,"0")}T${map.hour === "24" ? "00" : map.hour.padStart(2,"0")}:${map.minute.padStart(2,"0")}:${map.second.padStart(2,"0")}Z`);
+  
+  const diff = date.getTime() - formattedTarget.getTime();
+  return new Date(date.getTime() + diff);
 }
 
 function formatDuration(milliseconds) {
@@ -291,6 +320,7 @@ async function fetchSchedule(location, dateISO) {
     const [y, m, d] = dateISO.split("-");
     const aladhanDate = `${d}-${m}-${y}`;
     const payload = await fetchJSON(`${GLOBAL_API_BASE}/timingsByCity/${aladhanDate}?city=${encodeURIComponent(location.id)}&country=`);
+    state.timezone = payload.data.meta.timezone;
     return {
       dateISO,
       locationName: payload.data.meta.timezone,
@@ -299,6 +329,7 @@ async function fetchSchedule(location, dateISO) {
     };
   }
   const payload = await fetchJSON(`${API_BASE}/sholat/jadwal/${location.id}/${dateISO}`);
+  state.timezone = "Asia/Jakarta"; 
   return {
     dateISO,
     locationName: payload.data.kabko,
