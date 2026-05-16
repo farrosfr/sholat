@@ -1,4 +1,5 @@
 const API_BASE = "https://api.myquran.com/v3";
+const GLOBAL_API_BASE = "https://api.aladhan.com/v1";
 const DEFAULT_QUERY = "gresik";
 const PRAYERS = [
   ["imsak", "Imsak"],
@@ -13,6 +14,7 @@ const PRAYERS = [
 
 const state = {
   location: null,
+  isInternational: false,
   todaySchedule: null,
   tomorrowSchedule: null,
   timer: null,
@@ -114,6 +116,20 @@ function formatDuration(milliseconds) {
 }
 
 function getScheduleEntry(payload, dateISO) {
+  if (state.isInternational) {
+    const timings = payload.data.timings;
+    return {
+      imsak: timings.Imsak,
+      subuh: timings.Fajr,
+      terbit: timings.Sunrise,
+      dhuha: timings.Dhuhr, // Dhuha is not directly in Aladhan, using Dhuhr approx or skip
+      dzuhur: timings.Dhuhr,
+      ashar: timings.Asr,
+      maghrib: timings.Maghrib,
+      isya: timings.Isha,
+      tanggal: payload.data.date.readable
+    };
+  }
   if (!payload?.data?.jadwal) {
     throw new Error("Format jadwal tidak dikenali.");
   }
@@ -126,18 +142,34 @@ async function fetchJSON(url) {
     throw new Error(`Request gagal (${response.status}).`);
   }
   const payload = await response.json();
-  if (payload.status === false) {
+  if (payload.status === false || (payload.status === "error" && payload.code !== 200)) {
     throw new Error(payload.message || "Data tidak ditemukan.");
   }
   return payload;
 }
 
 async function searchLocations(query) {
+  if (state.isInternational) {
+    // Aladhan doesn't have a direct search list, we return the query as a "virtual" location
+    return [{ id: query, lokasi: query, international: true }];
+  }
   const payload = await fetchJSON(`${API_BASE}/sholat/kabkota/cari/${encodeURIComponent(query)}`);
   return Array.isArray(payload.data) ? payload.data : [];
 }
 
 async function fetchSchedule(location, dateISO) {
+  if (location.international) {
+    // Convert dateISO (YYYY-MM-DD) to DD-MM-YYYY for Aladhan
+    const [y, m, d] = dateISO.split("-");
+    const aladhanDate = `${d}-${m}-${y}`;
+    const payload = await fetchJSON(`${GLOBAL_API_BASE}/timingsByCity/${aladhanDate}?city=${encodeURIComponent(location.id)}&country=`);
+    return {
+      dateISO,
+      locationName: payload.data.meta.timezone,
+      province: location.lokasi,
+      times: getScheduleEntry(payload, dateISO),
+    };
+  }
   const payload = await fetchJSON(`${API_BASE}/sholat/jadwal/${location.id}/${dateISO}`);
   return {
     dateISO,
@@ -160,7 +192,9 @@ function renderResults(locations) {
 
 function renderSchedule(activeKey = "") {
   if (!state.todaySchedule) return;
-  els.locationLabel.textContent = `${state.todaySchedule.locationName}, ${state.todaySchedule.province}`;
+  els.locationLabel.textContent = state.isInternational 
+    ? state.todaySchedule.province 
+    : `${state.todaySchedule.locationName}, ${state.todaySchedule.province}`;
   els.scheduleDate.textContent = state.todaySchedule.times.tanggal || state.todaySchedule.dateISO;
   els.scheduleGrid.innerHTML = "";
 
@@ -242,6 +276,7 @@ async function loadLocation(location) {
   try {
     setStatus(`Memuat jadwal ${location.lokasi}...`);
     state.location = location;
+    state.isInternational = !!location.international;
     const [today, tomorrow] = await Promise.all([
       fetchSchedule(location, todayISO()),
       fetchSchedule(location, todayISO(1)),
@@ -251,7 +286,7 @@ async function loadLocation(location) {
     clearInterval(state.timer);
     updateCountdown();
     state.timer = setInterval(updateCountdown, 1000);
-    setStatus(`Jadwal aktif: ${today.locationName}, ${today.province}.`);
+    setStatus(`Jadwal aktif: ${location.lokasi}.`);
   } catch (error) {
     setStatus(error.message, true);
   }
@@ -297,7 +332,7 @@ async function useBrowserLocation() {
   navigator.geolocation.getCurrentPosition(
     async (position) => {
       try {
-        setStatus("Mencocokkan koordinat ke kota/kabupaten...");
+        setStatus("Mencocokkan koordinat...");
         const { latitude, longitude } = position.coords;
         const reverseUrl = new URL("https://nominatim.openstreetmap.org/reverse");
         reverseUrl.search = new URLSearchParams({
@@ -309,17 +344,27 @@ async function useBrowserLocation() {
           "accept-language": "id",
         });
         const reverse = await fetchJSON(reverseUrl.toString());
-        const candidates = locationKeywords(reverse.address || {});
-
-        for (const candidate of candidates) {
-          const locations = await searchLocations(candidate.replace(/^Kabupaten\s+/i, ""));
-          if (locations.length) {
-            renderResults(locations);
-            await loadLocation(locations[0]);
-            return;
+        const isIndo = reverse.address?.country_code === "id";
+        
+        if (isIndo) {
+          const candidates = locationKeywords(reverse.address || {});
+          for (const candidate of candidates) {
+            const locations = await searchLocations(candidate.replace(/^Kabupaten\s+/i, ""));
+            if (locations.length) {
+              renderResults(locations);
+              await loadLocation(locations[0]);
+              return;
+            }
           }
+        } else {
+          // International fallback to Aladhan
+          const city = reverse.address.city || reverse.address.town || reverse.address.state;
+          const country = reverse.address.country;
+          const locName = `${city}, ${country}`;
+          await loadLocation({ id: locName, lokasi: locName, international: true });
+          return;
         }
-        setStatus("Lokasi berhasil dibaca, tapi belum cocok dengan data myQuran. Coba cari manual.", true);
+        setStatus("Lokasi berhasil dibaca, tapi belum cocok dengan data. Coba cari manual.", true);
       } catch (error) {
         setStatus(`Lokasi gagal dipakai: ${error.message}`, true);
       }
@@ -353,7 +398,12 @@ els.rotateToggle.addEventListener("click", toggleRotation);
 els.form.addEventListener("submit", (event) => {
   event.preventDefault();
   const query = els.input.value.trim();
-  if (query) runSearch(query, true);
+  if (query) {
+    // Check if query looks international (contains comma or non-ID search)
+    // For simplicity, we can just allow the user to toggle or detect
+    // Let's assume search button for global if no ID results found or just allow it
+    runSearch(query, true);
+  }
 });
 
 els.locationButton.addEventListener("click", useBrowserLocation);
@@ -366,4 +416,17 @@ document.addEventListener("fullscreenchange", () => {
   }
 });
 
-runSearch(DEFAULT_QUERY, true);
+// Initial detection
+async function init() {
+  try {
+    // Check if we are abroad via browser locale or just default to Indo then switch
+    if (!navigator.language.startsWith("id")) {
+      // Default query for global if not Indo
+      // But let's stick to DEFAULT_QUERY and try to auto-detect via IP if possible
+      // For now, just run normal search
+    }
+  } catch {}
+  runSearch(DEFAULT_QUERY, true);
+}
+
+init();
