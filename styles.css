@@ -277,6 +277,7 @@ body.countdown-fullscreen .fullscreen-icon--exit {
 .results {
   margin-top: 22px;
 }
+
 .controls {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -288,11 +289,15 @@ body.countdown-fullscreen .fullscreen-icon--exit {
   background: var(--surface);
 }
 
+body.theme-dark .controls {
+  background: transparent;
+}
+
 .region-selector {
   grid-column: 1 / -1;
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .region-pill {
@@ -320,11 +325,6 @@ body.theme-dark .region-pill {
 body.theme-dark .region-pill.active {
   background: var(--primary);
   border-color: var(--primary);
-}
-
-label {
-body.theme-dark .controls {
-  background: transparent;
 }
 
 label {
