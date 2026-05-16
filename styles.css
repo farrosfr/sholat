@@ -393,10 +393,14 @@ body.countdown-fullscreen #next-time {
 }
 
 body.countdown-fullscreen .timer-row {
+  flex-direction: column;
+  align-items: center;
   margin: clamp(28px, 5vw, 48px) 0 18px;
-  grid-template-columns: 1fr;
-  justify-items: center;
   gap: clamp(18px, 4vw, 30px);
+}
+
+body.countdown-fullscreen .countdown-actions {
+  align-self: flex-end;
 }
 
 body.countdown-fullscreen .timer {
