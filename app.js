@@ -2,6 +2,14 @@ const API_BASE = "https://api.myquran.com/v3";
 const GLOBAL_API_BASE = "https://api.aladhan.com/v1";
 const DEFAULT_QUERY = "gresik";
 
+const ALIASES = {
+  jogja: "yogyakarta",
+  jkt: "jakarta",
+  sby: "surabaya",
+  bdg: "bandung",
+  solo: "surakarta",
+};
+
 const translations = {
   id: {
     eyebrow: "Jadwal Sholat Indonesia",
@@ -251,11 +259,17 @@ async function fetchJSON(url) {
 }
 
 async function searchLocations(query) {
+  const actualQuery = ALIASES[query.toLowerCase()] || query;
   if (state.isInternational) {
-    return [{ id: query, lokasi: query, international: true }];
+    return [{ id: actualQuery, lokasi: actualQuery, international: true }];
   }
-  const payload = await fetchJSON(`${API_BASE}/sholat/kabkota/cari/${encodeURIComponent(query)}`);
-  return Array.isArray(payload.data) ? payload.data : [];
+  try {
+    const payload = await fetchJSON(`${API_BASE}/sholat/kabkota/cari/${encodeURIComponent(actualQuery)}`);
+    return Array.isArray(payload.data) ? payload.data : [];
+  } catch (error) {
+    if (error.message.includes("404")) return [];
+    throw error;
+  }
 }
 
 async function fetchSchedule(location, dateISO) {
@@ -496,6 +510,24 @@ async function toggleRotation() {
 }
 
 els.rotateToggle.addEventListener("click", toggleRotation);
+
+let searchTimeout;
+els.input.addEventListener("input", (event) => {
+  const query = event.target.value.trim();
+  clearTimeout(searchTimeout);
+
+  if (query.length === 0) {
+    els.resultList.innerHTML = "";
+    setStatus("");
+    return;
+  }
+
+  if (query.length < 3) return;
+
+  searchTimeout = setTimeout(() => {
+    runSearch(query, false);
+  }, 500);
+});
 
 els.form.addEventListener("submit", (event) => {
   event.preventDefault();
