@@ -211,24 +211,28 @@
       background: transparent;
       box-shadow: none;
       backdrop-filter: none;
-      gap: 15px;
-      padding: 10px 40px;
+      gap: 20px;
+      padding: 10px 30px;
       grid-template-columns: 1fr auto 1fr;
+      overflow: hidden; /* Prevent any scroll */
     }
 
-    .fs-title { font-size: clamp(1.2rem, 15vh, 2.8rem); }
-    .fs-timer { font-size: clamp(3rem, 55vh, 12rem); }
+    .fs-title { font-size: clamp(1.2rem, 12vh, 2.5rem); }
+    .fs-timer { 
+      font-size: clamp(3rem, 45vh, 8.5rem); /* Significantly reduced from 55vh/12rem */
+      max-width: 50vw; 
+    }
     .fs-time { font-size: 1rem; }
-    .fs-label { font-size: 0.65rem; }
-    .fs-note { font-size: 0.75rem; max-width: 180px; }
+    .fs-label { font-size: 0.6rem; }
+    .fs-note { font-size: 0.7rem; max-width: 150px; }
 
     .fs-footer {
-      gap: 15px; /* Better spacing for small screens */
+      gap: 10px;
     }
 
     .icon-button {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
     }
-  }
-  </style>
+    }
+    </style>
