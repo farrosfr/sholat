@@ -431,62 +431,7 @@ body.countdown-fullscreen {
 }
 
 body.countdown-fullscreen .app-shell {
-  width: 100%;
-  min-height: 100vh;
-  padding: 0;
-  margin: 0;
-}
-
-body.countdown-fullscreen .hero {
-  min-height: 100vh;
-  border-radius: 0;
-  grid-template-columns: 1fr;
-  place-items: center;
-  padding: clamp(24px, 5vw, 64px);
-  box-shadow: none;
-  border: 0;
-}
-
-body.countdown-fullscreen .hero__content,
-body.countdown-fullscreen .controls,
-body.countdown-fullscreen .status,
-body.countdown-fullscreen .results,
-body.countdown-fullscreen .schedule {
   display: none;
-}
-
-body.countdown-fullscreen .countdown-panel {
-  width: min(1100px, calc(100% - 32px));
-  padding: clamp(32px, 8vw, 80px);
-  text-align: center;
-  background: var(--glass);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-}
-
-body.countdown-fullscreen #next-prayer {
-  font-size: clamp(3rem, 12vw, 8rem);
-  font-weight: 950;
-  letter-spacing: -0.04em;
-}
-
-body.countdown-fullscreen #next-time {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  opacity: 0.9;
-}
-
-body.countdown-fullscreen .timer-row {
-  flex-direction: column;
-  margin: clamp(40px, 8vw, 80px) 0 32px;
-  gap: 32px;
-}
-
-body.countdown-fullscreen .timer {
-  font-size: clamp(5rem, 24vw, 16rem);
-  font-weight: 900;
-  line-height: 0.9;
 }
 
 @media (max-width: 820px) {

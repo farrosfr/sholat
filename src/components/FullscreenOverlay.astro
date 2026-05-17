@@ -1,0 +1,141 @@
+---
+---
+<div id="fullscreen-overlay" class="fullscreen-overlay">
+  <div class="fs-container">
+    <div class="fs-header">
+      <span class="fs-label panel-label">Berikutnya</span>
+      <h2 id="fs-next-prayer" class="fs-title">-</h2>
+      <span id="fs-next-time" class="fs-time">--:--</span>
+    </div>
+    
+    <div class="fs-body">
+      <div id="fs-countdown" class="fs-timer">--:--:--</div>
+    </div>
+    
+    <div class="fs-footer">
+      <p id="fs-countdown-note" class="fs-note">Mengambil jadwal terbaru.</p>
+      <div class="fs-actions">
+        <!-- Re-use buttons or just have specific ones -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .fullscreen-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: var(--bg);
+    padding: clamp(20px, 5vw, 60px);
+    place-items: center;
+    overflow: hidden;
+  }
+
+  /* Add hero-style background for consistency */
+  .fullscreen-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(160deg, rgba(15, 107, 100, 0.15), transparent 50%),
+      linear-gradient(20deg, rgba(217, 156, 43, 0.1), transparent 50%);
+    z-index: -1;
+  }
+
+  :global(body.countdown-fullscreen) .fullscreen-overlay {
+    display: grid;
+  }
+
+  .fs-container {
+    width: min(1200px, 100%);
+    text-align: center;
+    background: var(--glass);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    padding: clamp(32px, 8vw, 80px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(24px, 5vw, 48px);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+  }
+
+  .fs-label {
+    font-size: clamp(0.8rem, 2vw, 1.2rem);
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+
+  .fs-title {
+    font-size: clamp(3rem, 10vw, 7rem);
+    font-weight: 950;
+    margin: 0;
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .fs-time {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  :global(body.theme-dark) .fs-time {
+    color: #f0c66e;
+  }
+
+  .fs-timer {
+    font-size: clamp(5rem, 20vw, 18rem);
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+  }
+
+  .fs-note {
+    font-size: clamp(0.9rem, 2vw, 1.25rem);
+    opacity: 0.6;
+    margin: 0;
+  }
+
+  /* LANDSCAPE OPTIMIZATION */
+  @media (orientation: landscape) {
+    .fs-container {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+      text-align: left;
+      padding: clamp(20px, 5vh, 60px);
+      gap: 40px;
+      height: 90vh;
+    }
+
+    .fs-body {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .fs-header {
+      flex: 0 0 auto;
+    }
+
+    .fs-footer {
+      position: absolute;
+      bottom: 40px;
+      left: 60px;
+    }
+  }
+
+  @media (orientation: landscape) and (max-height: 600px) {
+    .fs-container {
+      gap: 24px;
+      padding: 32px;
+    }
+    .fs-title { font-size: clamp(2rem, 12vh, 5rem); }
+    .fs-timer { font-size: clamp(4rem, 40vh, 12rem); }
+  }
+</style>

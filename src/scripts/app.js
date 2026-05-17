@@ -131,6 +131,11 @@ const els = {
   hijriDate: document.querySelector("#hijri-date-display"),
   regionId: document.querySelector("#region-id"),
   regionIntl: document.querySelector("#region-intl"),
+  // Fullscreen elements
+  fsNextPrayer: document.querySelector("#fs-next-prayer"),
+  fsNextTime: document.querySelector("#fs-next-time"),
+  fsCountdown: document.querySelector("#fs-countdown"),
+  fsCountdownNote: document.querySelector("#fs-countdown-note"),
 };
 
 function t(key, vars = {}) {
@@ -409,10 +414,24 @@ function updateCountdown() {
   const next = nextPrayerCandidate();
   if (!next) return;
 
+  // Update normal elements
   els.nextPrayer.textContent = next.label;
   els.nextTime.textContent = `${next.time} ${next.dayLabel}`;
-  els.countdown.textContent = formatDuration(next.date - new Date());
-  els.countdownNote.textContent = `${t("towards")} ${next.label.toLowerCase()} ${next.dayLabel}.`;
+  
+  // Update fullscreen elements
+  if (els.fsNextPrayer) els.fsNextPrayer.textContent = next.label;
+  if (els.fsNextTime) els.fsNextTime.textContent = `${next.time} ${next.dayLabel}`;
+
+  const duration = next.date - new Date();
+  const formatted = formatDuration(duration);
+  
+  els.countdown.textContent = formatted;
+  if (els.fsCountdown) els.fsCountdown.textContent = formatted;
+
+  const note = `${t("towards")} ${next.label.toLowerCase()} ${next.dayLabel}.`;
+  els.countdownNote.textContent = note;
+  if (els.fsCountdownNote) els.fsCountdownNote.textContent = note;
+
   renderSchedule(next.dayLabel === t("today") ? next.key : "");
 }
 
