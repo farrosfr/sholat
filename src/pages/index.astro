@@ -1,0 +1,18 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import CountdownPanel from "../components/CountdownPanel.astro";
+import Controls from "../components/Controls.astro";
+import Schedule from "../components/Schedule.astro";
+---
+
+<Layout title="Menuju Waktu Sholat">
+	<main class="app-shell">
+		<section class="hero" aria-labelledby="app-title">
+			<Hero />
+			<CountdownPanel />
+		</section>
+		<Controls />
+		<Schedule />
+	</main>
+</Layout>
