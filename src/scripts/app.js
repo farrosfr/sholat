@@ -136,6 +136,9 @@ const els = {
   fsNextTime: document.querySelector("#fs-next-time"),
   fsCountdown: document.querySelector("#fs-countdown"),
   fsCountdownNote: document.querySelector("#fs-countdown-note"),
+  fsThemeToggle: document.querySelector("#fs-theme-toggle"),
+  fsRotateToggle: document.querySelector("#fs-rotate-toggle"),
+  fsFullscreenToggle: document.querySelector("#fs-fullscreen-toggle"),
 };
 
 function t(key, vars = {}) {
@@ -615,6 +618,10 @@ els.form.addEventListener("submit", (event) => {
 els.locationButton.addEventListener("click", useBrowserLocation);
 els.fullscreenToggle.addEventListener("click", toggleFullscreen);
 els.themeToggle.addEventListener("click", toggleTheme);
+
+els.fsFullscreenToggle?.addEventListener("click", toggleFullscreen);
+els.fsThemeToggle?.addEventListener("click", toggleTheme);
+els.fsRotateToggle?.addEventListener("click", toggleRotation);
 
 els.regionId.addEventListener("click", () => setRegion("id"));
 els.regionIntl.addEventListener("click", () => setRegion("intl"));
