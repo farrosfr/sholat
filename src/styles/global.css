@@ -220,6 +220,14 @@ body.theme-dark .theme-icon--light {
 }
 
 /* Fullscreen Toggle Logic */
+#rotate-toggle {
+  display: none;
+}
+
+body.countdown-fullscreen #rotate-toggle {
+  display: inline-grid;
+}
+
 .fullscreen-icon--exit,
 body.countdown-fullscreen .fullscreen-icon--enter {
   display: none;
