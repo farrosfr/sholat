@@ -201,6 +201,34 @@ body.theme-dark #next-time {
   color: var(--primary);
 }
 
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  fill: none;
+}
+
+/* Theme Icon Toggle Logic */
+.theme-icon--light,
+body.theme-dark .theme-icon--dark {
+  display: none;
+}
+
+body.theme-dark .theme-icon--light {
+  display: block;
+}
+
+/* Fullscreen Toggle Logic */
+.fullscreen-icon--exit,
+body.countdown-fullscreen .fullscreen-icon--enter {
+  display: none;
+}
+
+body.countdown-fullscreen .fullscreen-icon--exit {
+  display: block;
+}
+
 body.theme-dark .icon-button {
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
