@@ -64,7 +64,7 @@ button {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: 1fr;
   gap: 32px;
   align-items: center;
   padding: 40px;
@@ -74,6 +74,12 @@ button {
   box-shadow: 0 20px 40px rgba(15, 107, 95, 0.2);
   position: relative;
   overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
 }
 
 body.theme-dark .hero {
