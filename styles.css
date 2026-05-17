@@ -323,6 +323,57 @@ body.theme-dark .search__group {
   color: var(--ink);
 }
 
+.status {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(120, 134, 131, 0.05);
+  border-left: 3px solid var(--line);
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.status.error {
+  color: var(--danger);
+  border-left-color: var(--danger);
+  background: rgba(173, 54, 54, 0.05);
+}
+
+.results {
+  margin-top: 12px;
+}
+
+.result-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.result-list button {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+body.theme-dark .result-list button {
+  background: #111414;
+}
+
+.result-list button:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
 .schedule {
   margin-top: 32px;
 }
