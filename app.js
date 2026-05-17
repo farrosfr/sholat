@@ -189,7 +189,7 @@ function updateClock() {
     second: "2-digit",
     hour12: false,
     timeZoneName: "short",
-  });
+  }).replace(/\./g, ":");
 
   els.currentDate.textContent = now.toLocaleDateString(locale, {
     ...tzOptions,
