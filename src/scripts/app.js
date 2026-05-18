@@ -472,6 +472,7 @@ async function loadLocation(location) {
     
     setStatus(t("loading", { loc: location.lokasi }));
     state.location = location;
+    localStorage.setItem("savedLocation", JSON.stringify(location));
     const [today, tomorrow] = await Promise.all([
       fetchSchedule(location, todayISO()),
       fetchSchedule(location, todayISO(1)),
@@ -634,6 +635,18 @@ document.addEventListener("fullscreenchange", () => {
 
 async function init() {
   updateStaticStrings();
+  
+  const saved = localStorage.getItem("savedLocation");
+  if (saved) {
+    try {
+      const location = JSON.parse(saved);
+      await loadLocation(location);
+      return;
+    } catch (e) {
+      localStorage.removeItem("savedLocation");
+    }
+  }
+  
   runSearch(DEFAULT_QUERY, true);
 }
 
